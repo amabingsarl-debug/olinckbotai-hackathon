@@ -43,6 +43,7 @@ Before returning a paper-only strategy recommendation, the live agent-context AP
 - checks risk limits and backtest evidence;
 - returns a paper-only recommendation with reasoning;
 - writes the latest decision metadata to the governed DataHub `agent_decisions` dataset;
+- records a governed `market_data_health` event and refuses the recommendation when a source-health scenario is degraded;
 - exports an agent-context report through the AWS report interface.
 
 ## How We Built It
@@ -74,7 +75,7 @@ Cloud and infrastructure:
 
 ## DataHub Usage
 
-DataHub OSS is live at `https://datahub.chapimo.com`. The Firebase Functions endpoint behind `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT` reads the OlinckBotAI catalog through authenticated GraphQL, then writes an audit update to the `agent_decisions` dataset through DataHub's REST ingest proposal API. The access token is stored only in Firebase Secret Manager. A reviewer can verify the connected path by checking for `context_used.datahub.mode: "datahub"` and `datahub_record.saved: true` in the response.
+DataHub OSS is live at `https://datahub.chapimo.com`. The Firebase Functions endpoint behind `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT` reads the OlinckBotAI catalog through authenticated GraphQL, then writes an audit update to the `agent_decisions` dataset through DataHub's REST ingest proposal API. The access token is stored only in Firebase Secret Manager. A reviewer can verify the connected path by checking for `context_used.datahub.mode: "datahub"` and `datahub_record.saved: true` in the response. The reproducible scenario `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT&data_health=degraded` demonstrates the quality gate: it records `market_data_health` in DataHub and returns a blocked refusal instead of analyzing compromised data.
 
 ## CockroachDB Usage
 

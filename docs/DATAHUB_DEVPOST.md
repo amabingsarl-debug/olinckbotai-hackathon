@@ -28,6 +28,8 @@ OlinckBotAI is a paper-first algorithmic trading application. Its Trading Contex
 
 The public `GET /api/agent-context?symbol=BTCUSDT` flow retrieves catalog assets from the live DataHub GraphQL API before returning its paper-only recommendation. It then updates the governed `agent_decisions` dataset with the latest symbol, decision, risk level, and timestamp through an authenticated DataHub REST ingest proposal.
 
+The agent also has a governed market-data quality gate. The reproducible failure simulation at `GET /api/agent-context?symbol=BTCUSDT&data_health=degraded` records a `market_data_health` event in DataHub and returns `recommendation.decision: "refuse"` with `risk_level: "blocked"`. The healthy path returns `wait` only after the quality gate is approved.
+
 This is not a generic chat wrapper around market prices. DataHub is the governed context layer that the agent reads before reasoning and contributes to after it acts.
 
 ## Links
@@ -43,8 +45,9 @@ This is not a generic chat wrapper around market prices. DataHub is the governed
 1. Open the OlinckBotAI dashboard in paper mode.
 2. Open `/api/agent-context?symbol=BTCUSDT`.
 3. Show `context_used.datahub.mode: "datahub"`, the governed `agent_decisions` asset, and `datahub_record.saved: true`.
-4. Show the recommendation and its explanation.
-5. Show that the decision record is saved and that real trading remains disabled.
+4. Trigger `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT&data_health=degraded`.
+5. Show `market_data_health`, `state: "degraded"`, `decision: "refuse"`, `risk_level: "blocked"`, and both successful DataHub records.
+6. Show that real trading remains disabled.
 
 ## Pre-existing Work Disclosure
 

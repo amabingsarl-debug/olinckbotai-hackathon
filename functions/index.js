@@ -990,9 +990,63 @@ async function recordDataHubDecision({ symbol, decision, riskLevel }) {
   }
 }
 
+async function recordDataHubHealthEvent({ state, reason, symbol }) {
+  const token = dataHubToken.value();
+  if (!token) return { saved: false, mode: "unconfigured" };
+  const urn = "urn:li:dataset:(urn:li:dataPlatform:olinckbotai,market_data_health,PROD)";
+  const proposal = {
+    entityType: "dataset",
+    entityUrn: urn,
+    changeType: "UPSERT",
+    aspectName: "datasetProperties",
+    aspect: {
+      value: JSON.stringify({
+        name: "market_data_health",
+        description: "OlinckBotAI governed market-data quality gate used before paper-trading recommendations.",
+        customProperties: {
+          health_state: state,
+          health_reason: reason,
+          health_symbol: symbol,
+          last_checked_at: new Date().toISOString()
+        }
+      }),
+      contentType: "application/json"
+    }
+  };
+  try {
+    const response = await fetch(`${dataHubGmsUrl}/api/gms/aspects?action=ingestProposal`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ proposal })
+    });
+    const payload = await response.json().catch(() => ({}));
+    return {
+      saved: response.ok && payload.value === "success",
+      mode: "datahub",
+      urn,
+      recorded_at: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error("DataHub health event record failed", error);
+    return { saved: false, mode: "datahub" };
+  }
+}
+
 app.get("/api/agent-context", async (req, res) => {
   await ensureDefaults();
   const symbol = String(req.query.symbol || "BTCUSDT").toUpperCase();
+  const requestedHealth = String(req.query.data_health || "healthy").toLowerCase();
+  const dataHealth = requestedHealth === "degraded"
+    ? {
+        state: "degraded",
+        approved: false,
+        reason: "Simulated market-data corruption: freshness and source-quality checks failed."
+      }
+    : {
+        state: "healthy",
+        approved: true,
+        reason: "Market source freshness and quality checks are approved for paper analysis."
+      };
   const now = new Date().toISOString();
   const memoryId = `firebase-demo-${Date.now()}`;
   const priorMemories = [
@@ -1020,7 +1074,14 @@ app.get("/api/agent-context", async (req, res) => {
     }
   ];
   const dataHub = await fetchDataHubContext(symbol, priorMemories);
-  const dataHubRecord = await recordDataHubDecision({ symbol, decision: "wait", riskLevel: "low" });
+  const healthRecord = await recordDataHubHealthEvent({
+    state: dataHealth.state,
+    reason: dataHealth.reason,
+    symbol
+  });
+  const decision = dataHealth.approved ? "wait" : "refuse";
+  const riskLevel = dataHealth.approved ? "low" : "blocked";
+  const dataHubRecord = await recordDataHubDecision({ symbol, decision, riskLevel });
   const response = {
     generated_at: now,
     symbol,
@@ -1064,11 +1125,17 @@ app.get("/api/agent-context", async (req, res) => {
           reason: memory.reasoning,
           risk_level: memory.risk_level
         })),
-        saved: dataHubRecord.saved
+        saved: dataHubRecord.saved,
+        data_quality_gate: {
+          state: dataHealth.state,
+          approved: dataHealth.approved,
+          reason: dataHealth.reason,
+          datahub_health_record: healthRecord
+        }
       },
       cockroach_memory: priorMemories,
       risk: {
-        risk_level: "low",
+        risk_level: riskLevel,
         max_capital_per_trade: 100,
         stop_loss_pct: 2,
         take_profit_pct: 4,
@@ -1080,11 +1147,13 @@ app.get("/api/agent-context", async (req, res) => {
       recent_trade_sample: 0
     },
     recommendation: {
-      decision: "wait",
-      confidence: "low",
-      risk_level: "low",
+      decision,
+      confidence: dataHealth.approved ? "low" : "blocked",
+      risk_level: riskLevel,
       strategy: "ATR",
-       reasoning: `The OlinckBotAI agent checked ${dataHub.mode === "datahub" ? "the governed DataHub catalog" : "the local safety context while DataHub is unavailable"} for ${symbol}, market sources, indicators and risk definitions. CockroachDB memory returned ${priorMemories.length} similar decision(s); cited memories: ${priorMemories.map((memory) => memory.id).join(", ")}. The recommendation remains paper-only.`,
+       reasoning: dataHealth.approved
+         ? `The OlinckBotAI agent checked ${dataHub.mode === "datahub" ? "the governed DataHub catalog" : "the local safety context while DataHub is unavailable"} for ${symbol}. The DataHub-governed data-quality gate is healthy, so paper analysis may continue. CockroachDB memory returned ${priorMemories.length} similar decision(s); cited memories: ${priorMemories.map((memory) => memory.id).join(", ")}. The recommendation remains paper-only.`
+         : `Recommendation refused. The governed data-quality gate is degraded for ${symbol}: ${dataHealth.reason} The agent blocks paper analysis until the source is approved again and records the incident in DataHub.`,
       cited_memories: priorMemories.map((memory) => memory.id),
       paper_only: true
     },

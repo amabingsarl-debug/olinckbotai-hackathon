@@ -32,9 +32,9 @@ flowchart LR
 
 1. The dashboard or `/api/agent-context` asks for a recommendation.
 2. The API retrieves governed OlinckBotAI catalog assets from DataHub GraphQL.
-3. The agent retrieves similar historical decisions from CockroachDB memory.
-4. It explains which context and memories were used.
-5. It records the new decision metadata in the governed DataHub `agent_decisions` dataset.
+3. The market-data quality gate evaluates the requested health scenario and writes the current state to the governed `market_data_health` dataset.
+4. A healthy gate allows paper analysis; a degraded gate refuses the recommendation with a blocked risk level.
+5. It records the resulting decision metadata in the governed DataHub `agent_decisions` dataset.
 
 ## Local Demo
 
@@ -64,6 +64,7 @@ The production review environment is already live:
 - DataHub: `https://datahub.chapimo.com`
 - Agent API: `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT`
 - Expected proof: `context_used.datahub.mode` is `datahub` and `datahub_record.saved` is `true`.
+- Failure-simulation proof: `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT&data_health=degraded` returns `recommendation.decision: "refuse"` and a successful `market_data_health` record.
 
 Set:
 
@@ -83,8 +84,8 @@ Never commit these values. Store them in `.env` locally or a cloud secret manage
 1. Show the dashboard and the `Agentic Memory` panel.
 2. Trigger `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT`.
 3. Point out the live DataHub asset and the successful DataHub decision-record confirmation.
-4. Show the recommendation, reasoning, and paper-only trading status.
-5. Refresh and show that the decision was recorded for future context.
+4. Trigger the same endpoint with `&data_health=degraded` and show the agent refusing the recommendation.
+5. Show the `market_data_health` and `agent_decisions` records, then the paper-only trading status.
 
 ## Why It Is Production-Ready
 

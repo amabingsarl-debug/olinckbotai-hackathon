@@ -15,6 +15,7 @@ Implemented:
 - Live DataHub OSS instance deployed at `https://datahub.chapimo.com`.
 - Firebase Functions retrieves governed catalog assets through authenticated DataHub GraphQL.
 - Firebase Functions records decision metadata in DataHub through an authenticated REST ingest proposal.
+- Governed data-quality gate records `market_data_health` events and refuses a recommendation when `data_health=degraded` is simulated.
 - Public proof endpoint: `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT` returns `datahub` mode and a successful record confirmation.
 - React dashboard includes `Agentic Memory` / DataHub context view.
 - The DataHub token is stored in Firebase Secret Manager, outside the codebase and browser.
