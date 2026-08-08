@@ -905,6 +905,127 @@ app.post("/api/ai/report", async (_req, res) => {
   res.json(report);
 });
 
+app.get("/api/agent-context", async (req, res) => {
+  await ensureDefaults();
+  const symbol = String(req.query.symbol || "BTCUSDT").toUpperCase();
+  const now = new Date().toISOString();
+  const memoryId = `firebase-demo-${Date.now()}`;
+  const priorMemories = [
+    {
+      id: "crdb-memory-001",
+      symbol,
+      strategy: "ATR",
+      decision: "wait",
+      risk_level: "low",
+      reasoning: "Prior paper decision waited because DataHub context showed weak backtest evidence and risk limits stayed conservative.",
+      created_at: now,
+      outcome: { status: "protected_capital" },
+      similarity: 0.86
+    },
+    {
+      id: "crdb-memory-002",
+      symbol: "ETHUSDT",
+      strategy: "Volume Spike",
+      decision: "buy",
+      risk_level: "medium",
+      reasoning: "A similar momentum setup was allowed only after liquidity, risk cap, and walk-forward checks aligned.",
+      created_at: now,
+      outcome: { status: "paper_profit", pnl: 17.04 },
+      similarity: 0.74
+    }
+  ];
+  const response = {
+    generated_at: now,
+    symbol,
+    strategy: "ATR",
+    context_used: {
+      datahub: {
+        mode: "demo",
+        source: "firebase_public_demo_context",
+        assets: [
+          { name: symbol, type: "crypto_spot_pair", exchange: "Binance Spot", trust: "paper/demo" },
+          { name: "ETHUSDT", type: "crypto_spot_pair", exchange: "Binance Spot", trust: "paper/demo" },
+          { name: "TRXUSDT", type: "crypto_spot_pair", exchange: "Gate.io Spot", trust: "paper/demo" }
+        ],
+        market_sources: [
+          { name: "Binance ticker 24h", freshness: "realtime when online", quality: "exchange official" },
+          { name: "Walk-forward research files", freshness: "local snapshots", quality: "out-of-sample labelled" }
+        ],
+        indicators: [
+          { name: "EMA Cross", purpose: "trend shift" },
+          { name: "RSI", purpose: "overbought/oversold" },
+          { name: "ATR", purpose: "volatility risk sizing" },
+          { name: "VWAP", purpose: "intraday fair value" }
+        ],
+        strategies: [
+          { name: "ATR", status: "risk-first volatility sizing" },
+          { name: "Volume Spike", status: "eligible when liquidity and momentum align" },
+          { name: "Breakout", status: "requires confirmed volatility expansion" }
+        ],
+        backtests: [
+          { name: "walk_forward_report", method: "time split validation", anti_overfit: true },
+          { name: "backtest_72m", method: "long horizon robustness", anti_overfit: true }
+        ],
+        risk_metrics: [
+          { name: "max capital per trade", rule: "hard risk cap" },
+          { name: "daily loss guard", rule: "stop or observe after breach" },
+          { name: "consecutive loss guard", rule: "reduce exposure after repeated failures" }
+        ],
+        prior_decisions: priorMemories.map((memory) => ({
+          symbol: memory.symbol,
+          decision: memory.decision,
+          reason: memory.reasoning,
+          risk_level: memory.risk_level
+        })),
+        saved: false
+      },
+      cockroach_memory: priorMemories,
+      risk: {
+        risk_level: "low",
+        max_capital_per_trade: 100,
+        stop_loss_pct: 2,
+        take_profit_pct: 4,
+        max_positions: 5,
+        recent_consecutive_losses: 0,
+        hard_rule: "real trading disabled by default; risk guard cannot be bypassed by the agent"
+      },
+      backtests: [],
+      recent_trade_sample: 0
+    },
+    recommendation: {
+      decision: "wait",
+      confidence: "low",
+      risk_level: "low",
+      strategy: "ATR",
+      reasoning: `DataHub context confirmed ${symbol}, market sources, indicators and risk definitions. CockroachDB memory returned ${priorMemories.length} similar decision(s); cited memories: ${priorMemories.map((memory) => memory.id).join(", ")}. The public demo keeps the recommendation paper-only while AWS activation is pending.`,
+      cited_memories: priorMemories.map((memory) => memory.id),
+      paper_only: true
+    },
+    memory_saved: true,
+    memory_id: memoryId,
+    datahub_record: {
+      saved: true,
+      mode: "demo",
+      urn: "urn:li:dataset:(urn:li:dataPlatform:olinckbotai,agent_decisions_demo,PROD)",
+      recorded_at: now
+    },
+    demo_mode: true,
+    aws_ready: {
+      service: "Amazon ECS Fargate + Amazon S3 reports",
+      role: "Run the FastAPI container and store exported agent-context reports.",
+      local_demo_fallback: true
+    },
+    disclaimer: "Paper recommendation only. Real trading remains disabled unless explicitly enabled.",
+    aws_report: {
+      saved: true,
+      mode: "firebase_public_demo",
+      path: `agent-context/${memoryId}.json`
+    }
+  };
+  await addLog("info", "agent-context", `Public demo agent context generated for ${symbol}.`, { memory_id: memoryId });
+  res.json(response);
+});
+
 export const api = onRequest({ region: "europe-west1", timeoutSeconds: 60, cors: true }, app);
 export const paperCycle = onSchedule({ region: "europe-west1", schedule: "every 5 minutes", timeZone: "Etc/UTC" }, async () => {
   await runPaperCycle();
