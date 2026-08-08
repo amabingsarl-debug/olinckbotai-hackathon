@@ -1,0 +1,29 @@
+{
+  "symbol": "BTCUSDT",
+  "recommendation": {
+    "decision": "wait",
+    "risk_level": "medium",
+    "reasoning": "The Trading Context Agent consulted DataHub context before recommending an action. The current market evidence does not clear the configured risk gate, so the paper-trading recommendation is to wait."
+  },
+  "context_used": {
+    "datahub": {
+      "mode": "demo",
+      "source": "local_demo_context",
+      "assets": ["BTCUSDT", "ETHUSDT", "TRXUSDT"],
+      "market_sources": ["Binance ticker 24h", "walk-forward research files"],
+      "indicators": ["EMA Cross", "RSI", "ATR", "VWAP"],
+      "strategies": ["Volume Spike", "Breakout", "Mean Reversion"],
+      "backtests": ["walk_forward_report", "backtest_72m"],
+      "risk_metrics": ["max capital per trade", "daily loss guard", "consecutive loss guard"]
+    }
+  },
+  "datahub_record": {
+    "saved": true,
+    "mode": "demo",
+    "purpose": "The production adapter records the latest decision metadata back to a DataHub dataset through GMS GraphQL."
+  },
+  "safety": {
+    "trading_mode": "paper",
+    "real_trading_enabled": false
+  }
+}

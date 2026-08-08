@@ -48,6 +48,16 @@ Core runtime:
 - Falls back to local demo context when DataHub credentials are unavailable.
 - Records the latest decision metadata back to DataHub when connected.
 
+## DataHub Hackathon Review
+
+For the Build with DataHub hackathon, use the following review materials:
+
+- Copy-ready Devpost text: `docs/DATAHUB_DEVPOST.md`
+- Two-minute-thirty video script: `docs/DATAHUB_VIDEO_SCRIPT.md`
+- Representative agent output: `examples/datahub_agent_context_response.json`
+
+The hackathon addition is the governed context workflow: the agent reads DataHub context before every recommendation and records decision metadata afterward. See `docs/DATAHUB_DEVPOST.md` for the pre-existing work disclosure.
+
 ## CockroachDB Usage
 
 `backend/app/services/agent_memory.py` implements `AgentMemoryService`.
