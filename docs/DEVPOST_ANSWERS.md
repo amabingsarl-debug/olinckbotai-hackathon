@@ -6,6 +6,24 @@ Use this file as copy-ready material for the two hackathon submissions.
 
 OlinckBotAI
 
+## Links
+
+Repository:
+
+https://github.com/amabingsarl-debug/olinckbotai-hackathon
+
+Functional demo app:
+
+https://olinckbotai.web.app
+
+Demo API endpoint:
+
+https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT
+
+Video:
+
+Pending YouTube link.
+
 ## One-Liner
 
 An explainable paper-first trading agent that uses DataHub context and CockroachDB agentic memory before recommending strategies.
@@ -125,4 +143,3 @@ Agentic trading systems need memory, but memory alone is not enough. The agent a
 3. Show the DataHub context used by the agent.
 4. Show similar CockroachDB memories and cited memory IDs.
 5. Show the recommendation, saved memory confirmation, DataHub record status, AWS report status, and real-trading-disabled guard.
-
