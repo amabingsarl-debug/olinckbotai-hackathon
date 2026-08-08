@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: OlinckBotAI agent-context report storage for hackathon demos.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: olinckbotai
+  ReportsBucketName:
+    Type: String
+    Description: Globally unique S3 bucket name for agent report artifacts.
+
+Resources:
+  AgentReportsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ReportsBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-demo-agent-reports
+            Status: Enabled
+            ExpirationInDays: 30
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Purpose
+          Value: agentic-memory-reports
+
+  AgentReportsWriterPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Allows OlinckBotAI to write encrypted agent report artifacts.
+      ManagedPolicyName: !Sub "${ProjectName}-agent-reports-writer"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:AbortMultipartUpload
+            Resource: !Sub "${AgentReportsBucket.Arn}/agent-context/*"
+
+Outputs:
+  ReportsBucket:
+    Description: S3 bucket used by AWS_S3_REPORTS_BUCKET.
+    Value: !Ref AgentReportsBucket
+  ReportsWriterPolicyArn:
+    Description: Attach this managed policy to the ECS task role or Lambda role.
+    Value: !Ref AgentReportsWriterPolicy

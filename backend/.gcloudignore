@@ -1,0 +1,12 @@
+.gcloudignore
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+app/data/incremental_hourly/
+app/data/incremental_minute_monthly/
+app/data/walk_forward_report.interrupted-*.json
+app/data/walk_forward_report.minute-monthly-*.json
+app/data/minute_monthly_summary.json

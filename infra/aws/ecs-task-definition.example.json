@@ -1,0 +1,44 @@
+{
+  "family": "olinckbotai-agent-memory",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::<account-id>:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::<account-id>:role/olinckbotaiTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "olinckbotai-backend",
+      "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/olinckbotai-backend:latest",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 8000, "protocol": "tcp" }
+      ],
+      "environment": [
+        { "name": "TRADING_MODE", "value": "paper" },
+        { "name": "REAL_TRADING_ENABLED", "value": "false" },
+        { "name": "COCKROACH_ENABLED", "value": "true" },
+        { "name": "COCKROACH_DEMO_MODE", "value": "false" },
+        { "name": "DATAHUB_ENABLED", "value": "true" },
+        { "name": "DATAHUB_DEMO_MODE", "value": "false" },
+        { "name": "AWS_REGION", "value": "<region>" },
+        { "name": "AWS_S3_REPORTS_BUCKET", "value": "<reports-bucket>" }
+      ],
+      "secrets": [
+        { "name": "COCKROACH_DATABASE_URL", "valueFrom": "arn:aws:ssm:<region>:<account-id>:parameter/olinckbotai/cockroach_database_url" },
+        { "name": "DATAHUB_GMS_URL", "valueFrom": "arn:aws:ssm:<region>:<account-id>:parameter/olinckbotai/datahub_gms_url" },
+        { "name": "DATAHUB_TOKEN", "valueFrom": "arn:aws:ssm:<region>:<account-id>:parameter/olinckbotai/datahub_token" },
+        { "name": "SECRET_KEY", "valueFrom": "arn:aws:ssm:<region>:<account-id>:parameter/olinckbotai/secret_key" },
+        { "name": "SCHEDULER_SECRET", "valueFrom": "arn:aws:ssm:<region>:<account-id>:parameter/olinckbotai/scheduler_secret" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/olinckbotai-agent-memory",
+          "awslogs-region": "<region>",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    }
+  ]
+}

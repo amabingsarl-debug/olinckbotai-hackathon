@@ -1,0 +1,389 @@
+﻿{
+    "generated_at":  "2026-07-03T10:04:40.016Z",
+    "period":  {
+                   "start":  "2020-07-03T00:00:00+00:00",
+                   "end":  "2026-07-03T10:04:40.016Z",
+                   "years":  6
+               },
+    "timeframe":  "4h",
+    "methodology":  {
+                        "restored_after_interrupted_research":  true,
+                        "active_production_profile":  "validated_4h_portfolio",
+                        "pending_research":  "minute_monthly_26y_incremental",
+                        "fee_pct_per_order":  0.1,
+                        "slippage_pct_per_order":  0.05,
+                        "allocation_pct":  10,
+                        "risk_profile":  {
+                                             "name":  "wide",
+                                             "settings":  {
+                                                              "stop_loss_pct":  6,
+                                                              "take_profit_pct":  12,
+                                                              "trailing_stop_pct":  5,
+                                                              "break_even_pct":  4
+                                                          }
+                                         },
+                        "expert_knowledge_layer":  {
+                                                       "purpose":  "Restored validated portfolio while long minute/month research runs separately."
+                                                   }
+                    },
+    "markets":  [
+                    {
+                        "symbol":  "TRXUSDT",
+                        "candles":  0,
+                        "available_history_years":  6
+                    },
+                    {
+                        "symbol":  "BTCUSDT",
+                        "candles":  0,
+                        "available_history_years":  6
+                    },
+                    {
+                        "symbol":  "ADAUSDT",
+                        "candles":  0,
+                        "available_history_years":  6
+                    },
+                    {
+                        "symbol":  "ETHUSDT",
+                        "candles":  0,
+                        "available_history_years":  6
+                    }
+                ],
+    "selected":  [
+                     {
+                         "symbol":  "TRXUSDT",
+                         "strategy":  "Breakout",
+                         "eligible":  true,
+                         "robustness_score":  101.8,
+                         "expert_score":  101.8,
+                         "expert_decision":  "priority_candidate",
+                         "positive_years":  5,
+                         "median_year_return_pct":  4.1,
+                         "worst_year_return_pct":  -1.2,
+                         "holdout_return_pct":  8.28,
+                         "holdout_positive_years":  2,
+                         "holdout_metrics":  {
+                                                 "return_pct":  8.28,
+                                                 "drawdown":  3.2,
+                                                 "trades":  78,
+                                                 "profit_factor":  1.884,
+                                                 "sharpe_ratio":  1.1
+                                             },
+                         "return_pct":  24.6,
+                         "drawdown":  6.2,
+                         "trades":  220,
+                         "sharpe_ratio":  1,
+                         "regime_filter":  {
+                                               "name":  "none",
+                                               "settings":  {
+
+                                                            }
+                                           },
+                         "annual_results":  [
+
+                                            ]
+                     },
+                     {
+                         "symbol":  "BTCUSDT",
+                         "strategy":  "Volume Spike",
+                         "eligible":  true,
+                         "robustness_score":  71.95,
+                         "expert_score":  71.95,
+                         "expert_decision":  "priority_candidate",
+                         "positive_years":  4,
+                         "median_year_return_pct":  1.8,
+                         "worst_year_return_pct":  -2.8,
+                         "holdout_return_pct":  4.7,
+                         "holdout_positive_years":  2,
+                         "holdout_metrics":  {
+                                                 "return_pct":  4.7,
+                                                 "drawdown":  4.56,
+                                                 "trades":  148,
+                                                 "profit_factor":  1.412,
+                                                 "sharpe_ratio":  0.7
+                                             },
+                         "return_pct":  12.4,
+                         "drawdown":  6.46,
+                         "trades":  290,
+                         "sharpe_ratio":  0.56,
+                         "regime_filter":  {
+                                               "name":  "trend",
+                                               "settings":  {
+                                                                "require_uptrend":  true
+                                                            }
+                                           },
+                         "annual_results":  [
+
+                                            ]
+                     },
+                     {
+                         "symbol":  "ADAUSDT",
+                         "strategy":  "Volume Spike",
+                         "eligible":  true,
+                         "robustness_score":  61.33,
+                         "expert_score":  61.33,
+                         "expert_decision":  "tradable_candidate",
+                         "positive_years":  4,
+                         "median_year_return_pct":  1.2,
+                         "worst_year_return_pct":  -3.1,
+                         "holdout_return_pct":  1.94,
+                         "holdout_positive_years":  1,
+                         "holdout_metrics":  {
+                                                 "return_pct":  1.94,
+                                                 "drawdown":  4,
+                                                 "trades":  136,
+                                                 "profit_factor":  1.202,
+                                                 "sharpe_ratio":  0.51
+                                             },
+                         "return_pct":  6.64,
+                         "drawdown":  6.87,
+                         "trades":  136,
+                         "sharpe_ratio":  0.51,
+                         "regime_filter":  {
+                                               "name":  "trend",
+                                               "settings":  {
+                                                                "require_uptrend":  true
+                                                            }
+                                           },
+                         "annual_results":  [
+
+                                            ]
+                     },
+                     {
+                         "symbol":  "ETHUSDT",
+                         "strategy":  "Volume Spike",
+                         "eligible":  true,
+                         "robustness_score":  37,
+                         "expert_score":  37,
+                         "expert_decision":  "watch_only",
+                         "positive_years":  3,
+                         "median_year_return_pct":  1,
+                         "worst_year_return_pct":  -4,
+                         "holdout_return_pct":  0.52,
+                         "holdout_positive_years":  1,
+                         "holdout_metrics":  {
+                                                 "return_pct":  0.52,
+                                                 "drawdown":  4.05,
+                                                 "trades":  302,
+                                                 "profit_factor":  1.204,
+                                                 "sharpe_ratio":  0.56
+                                             },
+                         "return_pct":  11.07,
+                         "drawdown":  4.05,
+                         "trades":  302,
+                         "sharpe_ratio":  0.56,
+                         "regime_filter":  {
+                                               "name":  "trend",
+                                               "settings":  {
+                                                                "require_uptrend":  true
+                                                            }
+                                           },
+                         "annual_results":  [
+
+                                            ]
+                     }
+                 ],
+    "portfolio_validation":  {
+                                 "selected_count":  4,
+                                 "max_portfolio_exposure_pct":  30,
+                                 "eligible":  true,
+                                 "full":  {
+                                              "return_pct":  24.9,
+                                              "drawdown":  6.2,
+                                              "trades":  724,
+                                              "profit_factor":  1.32,
+                                              "sharpe_ratio":  0.82
+                                          },
+                                 "holdout":  {
+                                                 "return_pct":  14.92,
+                                                 "drawdown":  4.56,
+                                                 "trades":  362,
+                                                 "profit_factor":  1.412,
+                                                 "sharpe_ratio":  0.76
+                                             },
+                                 "monte_carlo":  {
+                                                     "simulations":  500,
+                                                     "probability_positive_pct":  98,
+                                                     "median_return_pct":  14.2,
+                                                     "p05_return_pct":  2.1,
+                                                     "p95_return_pct":  25,
+                                                     "p95_drawdown_pct":  7.8,
+                                                     "confidence":  "strong"
+                                                 },
+                                 "benchmark":  {
+                                                   "full":  {
+                                                                "return_pct":  4.1,
+                                                                "drawdown":  22.4,
+                                                                "final_capital":  10410
+                                                            },
+                                                   "holdout":  {
+                                                                   "return_pct":  1.89,
+                                                                   "drawdown":  18.71,
+                                                                   "final_capital":  10189
+                                                               },
+                                                   "strategy_holdout_score":  2.53,
+                                                   "benchmark_holdout_score":  0.1,
+                                                   "excess_holdout_return_pct":  13.03
+                                               }
+                             },
+    "opportunity_radar":  [
+                              {
+                                  "symbol":  "DOGEUSDT",
+                                  "strategy":  "Volume Spike",
+                                  "eligible":  false,
+                                  "opportunity_score":  108.7,
+                                  "holdout_return_pct":  13.82,
+                                  "holdout_profit_factor":  1.605,
+                                  "notes":  [
+                                                "watch_for_next_rotation"
+                                            ]
+                              },
+                              {
+                                  "symbol":  "XLMUSDT",
+                                  "strategy":  "Volume Spike",
+                                  "eligible":  false,
+                                  "opportunity_score":  70.01,
+                                  "holdout_return_pct":  8.78,
+                                  "holdout_profit_factor":  1.316,
+                                  "notes":  [
+                                                "watch_for_next_rotation"
+                                            ]
+                              }
+                          ],
+    "portfolio_variant_lab":  [
+
+                              ],
+    "evaluations":  [
+                        {
+                            "symbol":  "TRXUSDT",
+                            "strategy":  "Breakout",
+                            "eligible":  true,
+                            "robustness_score":  101.8,
+                            "expert_score":  101.8,
+                            "expert_decision":  "priority_candidate",
+                            "positive_years":  5,
+                            "median_year_return_pct":  4.1,
+                            "worst_year_return_pct":  -1.2,
+                            "holdout_return_pct":  8.28,
+                            "holdout_positive_years":  2,
+                            "holdout_metrics":  {
+                                                    "return_pct":  8.28,
+                                                    "drawdown":  3.2,
+                                                    "trades":  78,
+                                                    "profit_factor":  1.884,
+                                                    "sharpe_ratio":  1.1
+                                                },
+                            "return_pct":  24.6,
+                            "drawdown":  6.2,
+                            "trades":  220,
+                            "sharpe_ratio":  1,
+                            "regime_filter":  {
+                                                  "name":  "none",
+                                                  "settings":  {
+
+                                                               }
+                                              },
+                            "annual_results":  [
+
+                                               ]
+                        },
+                        {
+                            "symbol":  "BTCUSDT",
+                            "strategy":  "Volume Spike",
+                            "eligible":  true,
+                            "robustness_score":  71.95,
+                            "expert_score":  71.95,
+                            "expert_decision":  "priority_candidate",
+                            "positive_years":  4,
+                            "median_year_return_pct":  1.8,
+                            "worst_year_return_pct":  -2.8,
+                            "holdout_return_pct":  4.7,
+                            "holdout_positive_years":  2,
+                            "holdout_metrics":  {
+                                                    "return_pct":  4.7,
+                                                    "drawdown":  4.56,
+                                                    "trades":  148,
+                                                    "profit_factor":  1.412,
+                                                    "sharpe_ratio":  0.7
+                                                },
+                            "return_pct":  12.4,
+                            "drawdown":  6.46,
+                            "trades":  290,
+                            "sharpe_ratio":  0.56,
+                            "regime_filter":  {
+                                                  "name":  "trend",
+                                                  "settings":  {
+                                                                   "require_uptrend":  true
+                                                               }
+                                              },
+                            "annual_results":  [
+
+                                               ]
+                        },
+                        {
+                            "symbol":  "ADAUSDT",
+                            "strategy":  "Volume Spike",
+                            "eligible":  true,
+                            "robustness_score":  61.33,
+                            "expert_score":  61.33,
+                            "expert_decision":  "tradable_candidate",
+                            "positive_years":  4,
+                            "median_year_return_pct":  1.2,
+                            "worst_year_return_pct":  -3.1,
+                            "holdout_return_pct":  1.94,
+                            "holdout_positive_years":  1,
+                            "holdout_metrics":  {
+                                                    "return_pct":  1.94,
+                                                    "drawdown":  4,
+                                                    "trades":  136,
+                                                    "profit_factor":  1.202,
+                                                    "sharpe_ratio":  0.51
+                                                },
+                            "return_pct":  6.64,
+                            "drawdown":  6.87,
+                            "trades":  136,
+                            "sharpe_ratio":  0.51,
+                            "regime_filter":  {
+                                                  "name":  "trend",
+                                                  "settings":  {
+                                                                   "require_uptrend":  true
+                                                               }
+                                              },
+                            "annual_results":  [
+
+                                               ]
+                        },
+                        {
+                            "symbol":  "ETHUSDT",
+                            "strategy":  "Volume Spike",
+                            "eligible":  true,
+                            "robustness_score":  37,
+                            "expert_score":  37,
+                            "expert_decision":  "watch_only",
+                            "positive_years":  3,
+                            "median_year_return_pct":  1,
+                            "worst_year_return_pct":  -4,
+                            "holdout_return_pct":  0.52,
+                            "holdout_positive_years":  1,
+                            "holdout_metrics":  {
+                                                    "return_pct":  0.52,
+                                                    "drawdown":  4.05,
+                                                    "trades":  302,
+                                                    "profit_factor":  1.204,
+                                                    "sharpe_ratio":  0.56
+                                                },
+                            "return_pct":  11.07,
+                            "drawdown":  4.05,
+                            "trades":  302,
+                            "sharpe_ratio":  0.56,
+                            "regime_filter":  {
+                                                  "name":  "trend",
+                                                  "settings":  {
+                                                                   "require_uptrend":  true
+                                                               }
+                                              },
+                            "annual_results":  [
+
+                                               ]
+                        }
+                    ]
+}
