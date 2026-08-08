@@ -36,13 +36,13 @@ Trading bots often optimize for short-term signals without remembering why past 
 
 OlinckBotAI combines a FastAPI trading backend, React dashboard, backtesting, risk controls, paper trading, DataHub AI Context, and CockroachDB-backed agentic memory.
 
-Before recommending a strategy, the agent:
+Before returning a paper-only strategy recommendation, the live agent-context API:
 
-- retrieves governed trading context from DataHub or demo metadata;
+- retrieves governed OlinckBotAI catalog assets from the live DataHub GraphQL API;
 - retrieves similar historical decisions from CockroachDB semantic memory;
 - checks risk limits and backtest evidence;
 - returns a paper-only recommendation with reasoning;
-- saves the new decision, indicators, risk level, rationale, and timestamp;
+- writes the latest decision metadata to the governed DataHub `agent_decisions` dataset;
 - exports an agent-context report through the AWS report interface.
 
 ## How We Built It
@@ -74,9 +74,7 @@ Cloud and infrastructure:
 
 ## DataHub Usage
 
-The `TradingContextAgent` uses `DataHubClient` to retrieve assets, market sources, indicators, strategies, backtests, risk metrics, and prior decisions before producing a recommendation. In production, it uses DataHub GMS GraphQL. In demo mode, it uses local governed metadata so judges can run the project without secrets.
-
-After analysis, the agent records decision metadata back to DataHub or the demo record path.
+DataHub OSS is live at `https://datahub.chapimo.com`. The Firebase Functions endpoint behind `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT` reads the OlinckBotAI catalog through authenticated GraphQL, then writes an audit update to the `agent_decisions` dataset through DataHub's REST ingest proposal API. The access token is stored only in Firebase Secret Manager. A reviewer can verify the connected path by checking for `context_used.datahub.mode: "datahub"` and `datahub_record.saved: true` in the response.
 
 ## CockroachDB Usage
 

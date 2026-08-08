@@ -18,21 +18,23 @@ OlinckBotAI is a paper-first algorithmic trading application. Its Trading Contex
 
 ## How We Built It
 
-- FastAPI backend and React/TypeScript dashboard.
-- `DataHubClient` uses the DataHub GMS GraphQL API in connected mode.
-- The agent reads catalog context before reasoning and writes latest decision metadata back after analysis.
+- Firebase-hosted web application and a Firebase Functions API.
+- A live DataHub OSS instance is deployed at `https://datahub.chapimo.com`.
+- The API uses the authenticated DataHub GraphQL endpoint to retrieve governed catalog assets, then writes the latest decision metadata back through DataHub's ingest proposal endpoint.
 - Official DataHub Skills are included under `.agents/skills/` for search, enrichment, lineage, quality, setup, and connector-planning workflows.
-- A local demo context makes the project reproducible without exposing any token or financial credential.
+- The DataHub token is held in Firebase Secret Manager; no credential is stored in the repository or returned to the browser.
 
 ## How DataHub Is Used
 
-The agent calls `DataHubClient.get_trading_context()` before it recommends an action. The returned context contains the asset catalog, source freshness and quality notes, indicator definitions, strategy eligibility, backtest references, and hard risk limits. After a recommendation, `DataHubClient.record_decision()` writes the latest decision metadata to the DataHub decision dataset when connected.
+The public `GET /api/agent-context?symbol=BTCUSDT` flow retrieves catalog assets from the live DataHub GraphQL API before returning its paper-only recommendation. It then updates the governed `agent_decisions` dataset with the latest symbol, decision, risk level, and timestamp through an authenticated DataHub REST ingest proposal.
 
 This is not a generic chat wrapper around market prices. DataHub is the governed context layer that the agent reads before reasoning and contributes to after it acts.
 
 ## Links
 
 - Demo: https://olinckbotai.web.app
+- Live agent-context API: https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT
+- Live DataHub catalog: https://datahub.chapimo.com
 - Repository: https://github.com/amabingsarl-debug/olinckbotai-hackathon
 - Sample output: `examples/datahub_agent_context_response.json`
 
@@ -40,7 +42,7 @@ This is not a generic chat wrapper around market prices. DataHub is the governed
 
 1. Open the OlinckBotAI dashboard in paper mode.
 2. Open `/api/agent-context?symbol=BTCUSDT`.
-3. Show the DataHub assets, sources, indicators, backtests, and risk metrics that the agent consulted.
+3. Show `context_used.datahub.mode: "datahub"`, the governed `agent_decisions` asset, and `datahub_record.saved: true`.
 4. Show the recommendation and its explanation.
 5. Show that the decision record is saved and that real trading remains disabled.
 

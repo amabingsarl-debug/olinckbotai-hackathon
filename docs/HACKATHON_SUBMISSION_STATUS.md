@@ -12,11 +12,12 @@ Status: ready for demo submission.
 
 Implemented:
 
-- DataHub AI Context adapter with production GraphQL path and local demo mode.
-- Trading Context Agent retrieves assets, data sources, indicators, strategies, backtests, risk metrics, and prior decisions before recommendation.
-- Agent records decision metadata after analysis.
+- Live DataHub OSS instance deployed at `https://datahub.chapimo.com`.
+- Firebase Functions retrieves governed catalog assets through authenticated DataHub GraphQL.
+- Firebase Functions records decision metadata in DataHub through an authenticated REST ingest proposal.
+- Public proof endpoint: `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT` returns `datahub` mode and a successful record confirmation.
 - React dashboard includes `Agentic Memory` / DataHub context view.
-- Demo mode works without DataHub credentials.
+- The DataHub token is stored in Firebase Secret Manager, outside the codebase and browser.
 
 ### CockroachDB x AWS: Build with Agentic Memory
 
@@ -71,7 +72,7 @@ Results:
 
 - API health: OK.
 - Real trading: disabled.
-- Agent context: generated a recommendation, retrieved memories, saved a new memory, recorded DataHub demo metadata, wrote a local AWS report artifact.
+- Agent context: generated a paper-only recommendation, retrieved live DataHub catalog metadata, and successfully recorded the latest decision in the DataHub dataset.
 - Frontend: HTTP 200.
 
 ## AWS Contingency

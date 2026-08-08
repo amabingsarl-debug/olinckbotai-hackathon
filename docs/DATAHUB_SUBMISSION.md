@@ -22,17 +22,19 @@ flowchart LR
 
 ## DataHub Capabilities Used
 
-- **DataHub GraphQL API**: `backend/app/services/datahub_context.py` searches DataHub for trading datasets and records decision metadata.
+- **Live DataHub OSS deployment**: the governed catalog is available at `https://datahub.chapimo.com`.
+- **DataHub GraphQL API**: the Firebase Functions endpoint searches the catalog for OlinckBotAI datasets before building its response.
+- **DataHub REST ingest proposal**: each agent-context request updates the `agent_decisions` dataset with auditable decision metadata.
 - **DataHub MCP/Skills path**: official DataHub Skills are installed under `.agents/skills/` for catalog search, enrichment, lineage, quality, setup, and connector planning workflows.
-- **Demo fallback**: when no DataHub credentials are available, the agent uses curated local metadata so judges can run the demo immediately.
+- **Secret-managed access**: the production token is held in Firebase Secret Manager and is never exposed to the browser or repository.
 
 ## Agent Flow
 
 1. The dashboard or `/api/agent-context` asks for a recommendation.
-2. `TradingContextAgent` retrieves DataHub context: tracked assets, market sources, indicators, strategies, backtests, risk metrics, and previous decisions.
+2. The API retrieves governed OlinckBotAI catalog assets from DataHub GraphQL.
 3. The agent retrieves similar historical decisions from CockroachDB memory.
 4. It explains which context and memories were used.
-5. It saves the new decision back to DataHub and CockroachDB.
+5. It records the new decision metadata in the governed DataHub `agent_decisions` dataset.
 
 ## Local Demo
 
@@ -57,6 +59,12 @@ REAL_TRADING_ENABLED=false
 
 ## Production DataHub Setup
 
+The production review environment is already live:
+
+- DataHub: `https://datahub.chapimo.com`
+- Agent API: `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT`
+- Expected proof: `context_used.datahub.mode` is `datahub` and `datahub_record.saved` is `true`.
+
 Set:
 
 ```env
@@ -73,8 +81,8 @@ Never commit these values. Store them in `.env` locally or a cloud secret manage
 ## Video Scenario Under 3 Minutes
 
 1. Show the dashboard and the `Agentic Memory` panel.
-2. Trigger `/api/agent-context?symbol=BTCUSDT`.
-3. Point out the DataHub context used by the agent.
+2. Trigger `https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT`.
+3. Point out the live DataHub asset and the successful DataHub decision-record confirmation.
 4. Show the recommendation, reasoning, and paper-only trading status.
 5. Refresh and show that the decision was recorded for future context.
 

@@ -2,12 +2,15 @@
 import admin from "firebase-admin";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import { defineSecret } from "firebase-functions/params";
 
 admin.initializeApp();
 const db = admin.firestore();
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 const deploymentRevision = "2026-08-01-api-rebuild";
+const dataHubToken = defineSecret("DATAHUB_TOKEN");
+const dataHubGmsUrl = "https://datahub.chapimo.com";
 
 const strategyNames = [
   "ATR", "Bollinger Bands", "Breakout", "EMA Cross", "MACD", "Mean Reversion",
@@ -905,6 +908,88 @@ app.post("/api/ai/report", async (_req, res) => {
   res.json(report);
 });
 
+async function fetchDataHubContext(symbol, priorDecisions) {
+  const token = dataHubToken.value();
+  if (!token) {
+    return { mode: "unconfigured", source: "datahub_token_missing", assets: [] };
+  }
+
+  const query = {
+    query: `query SearchOlinckAssets($input: SearchInput!) {
+      search(input: $input) {
+        searchResults { entity { urn type ... on Dataset { name description } } }
+      }
+    }`,
+    variables: { input: { type: "DATASET", query: "OlinckBotAI", start: 0, count: 10 } }
+  };
+
+  try {
+    const response = await fetch(`${dataHubGmsUrl}/api/graphql`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(query)
+    });
+    if (!response.ok) throw new Error(`DataHub returned HTTP ${response.status}`);
+    const payload = await response.json();
+    if (payload.errors?.length) throw new Error("DataHub rejected the metadata query");
+    const results = payload.data?.search?.searchResults || [];
+    return {
+      mode: "datahub",
+      source: "datahub_graphql",
+      assets: results.map(({ entity }) => ({
+        urn: entity?.urn,
+        name: entity?.name,
+        description: entity?.description,
+        type: entity?.type
+      })).filter((asset) => asset.urn),
+      priorDecisions
+    };
+  } catch (error) {
+    console.error("DataHub context lookup failed", error);
+    return { mode: "unavailable", source: "datahub_query_failed", assets: [] };
+  }
+}
+
+async function recordDataHubDecision({ symbol, decision, riskLevel }) {
+  const token = dataHubToken.value();
+  if (!token) return { saved: false, mode: "unconfigured" };
+  const urn = "urn:li:dataset:(urn:li:dataPlatform:olinckbotai,agent_decisions,PROD)";
+  const proposal = {
+    entityType: "dataset",
+    entityUrn: urn,
+    changeType: "UPSERT",
+    aspectName: "datasetProperties",
+    aspect: {
+      value: JSON.stringify({
+        name: "agent_decisions",
+        description: "OlinckBotAI paper-trading agent decision log governed through DataHub.",
+        customProperties: {
+          last_symbol: symbol,
+          last_decision: decision,
+          last_risk_level: riskLevel,
+          last_recorded_at: new Date().toISOString()
+        }
+      }),
+      contentType: "application/json"
+    }
+  };
+  try {
+    const response = await fetch(`${dataHubGmsUrl}/api/gms/aspects?action=ingestProposal`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ proposal })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.value !== "success") {
+      return { saved: false, mode: "datahub" };
+    }
+    return { saved: true, mode: "datahub", urn, recorded_at: new Date().toISOString() };
+  } catch (error) {
+    console.error("DataHub decision record failed", error);
+    return { saved: false, mode: "datahub" };
+  }
+}
+
 app.get("/api/agent-context", async (req, res) => {
   await ensureDefaults();
   const symbol = String(req.query.symbol || "BTCUSDT").toUpperCase();
@@ -934,15 +1019,17 @@ app.get("/api/agent-context", async (req, res) => {
       similarity: 0.74
     }
   ];
+  const dataHub = await fetchDataHubContext(symbol, priorMemories);
+  const dataHubRecord = await recordDataHubDecision({ symbol, decision: "wait", riskLevel: "low" });
   const response = {
     generated_at: now,
     symbol,
     strategy: "ATR",
     context_used: {
       datahub: {
-        mode: "demo",
-        source: "firebase_public_demo_context",
-        assets: [
+        mode: dataHub.mode,
+        source: dataHub.source,
+        assets: dataHub.assets.length ? dataHub.assets : [
           { name: symbol, type: "crypto_spot_pair", exchange: "Binance Spot", trust: "paper/demo" },
           { name: "ETHUSDT", type: "crypto_spot_pair", exchange: "Binance Spot", trust: "paper/demo" },
           { name: "TRXUSDT", type: "crypto_spot_pair", exchange: "Gate.io Spot", trust: "paper/demo" }
@@ -977,7 +1064,7 @@ app.get("/api/agent-context", async (req, res) => {
           reason: memory.reasoning,
           risk_level: memory.risk_level
         })),
-        saved: false
+        saved: dataHubRecord.saved
       },
       cockroach_memory: priorMemories,
       risk: {
@@ -997,19 +1084,14 @@ app.get("/api/agent-context", async (req, res) => {
       confidence: "low",
       risk_level: "low",
       strategy: "ATR",
-      reasoning: `DataHub context confirmed ${symbol}, market sources, indicators and risk definitions. CockroachDB memory returned ${priorMemories.length} similar decision(s); cited memories: ${priorMemories.map((memory) => memory.id).join(", ")}. The public demo keeps the recommendation paper-only while AWS activation is pending.`,
+       reasoning: `The OlinckBotAI agent checked ${dataHub.mode === "datahub" ? "the governed DataHub catalog" : "the local safety context while DataHub is unavailable"} for ${symbol}, market sources, indicators and risk definitions. CockroachDB memory returned ${priorMemories.length} similar decision(s); cited memories: ${priorMemories.map((memory) => memory.id).join(", ")}. The recommendation remains paper-only.`,
       cited_memories: priorMemories.map((memory) => memory.id),
       paper_only: true
     },
     memory_saved: true,
     memory_id: memoryId,
-    datahub_record: {
-      saved: true,
-      mode: "demo",
-      urn: "urn:li:dataset:(urn:li:dataPlatform:olinckbotai,agent_decisions_demo,PROD)",
-      recorded_at: now
-    },
-    demo_mode: true,
+    datahub_record: dataHubRecord,
+    demo_mode: dataHub.mode !== "datahub",
     aws_ready: {
       service: "Amazon ECS Fargate + Amazon S3 reports",
       role: "Run the FastAPI container and store exported agent-context reports.",
@@ -1026,7 +1108,7 @@ app.get("/api/agent-context", async (req, res) => {
   res.json(response);
 });
 
-export const api = onRequest({ region: "europe-west1", timeoutSeconds: 60, cors: true }, app);
+export const api = onRequest({ region: "europe-west1", timeoutSeconds: 60, cors: true, secrets: [dataHubToken] }, app);
 export const paperCycle = onSchedule({ region: "europe-west1", schedule: "every 5 minutes", timeZone: "Etc/UTC" }, async () => {
   await runPaperCycle();
 });
