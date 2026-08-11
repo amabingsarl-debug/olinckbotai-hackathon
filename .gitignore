@@ -29,3 +29,10 @@ backend/app/data/incremental_hourly/
 backend/app/data/incremental_minute_monthly/
 aws-env.json
 ccloud-context.json
+.video-tools/
+Screenshot *.png
+codex_screen*.png
+datahub_*.png
+devpost_*.png
+edge_*.png
+internal_browser*.png
