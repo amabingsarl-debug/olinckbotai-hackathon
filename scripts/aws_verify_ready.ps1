@@ -15,16 +15,17 @@ Write-Host "OlinckBotAI AWS readiness check"
 Write-Host "Region: $Region"
 
 $awsCommand = Get-Command aws -ErrorAction SilentlyContinue
-if (-not $awsCommand) {
+$awsExecutable = if ($awsCommand) { $awsCommand.Source } else { "C:\Program Files\Amazon\AWSCLIV2\aws.exe" }
+if (-not (Test-Path -LiteralPath $awsExecutable)) {
   Write-Host "AWS CLI: missing"
   Write-Host "Install AWS CLI v2, then run: aws configure sso or aws configure"
   exit 2
 }
 
-Write-Host "AWS CLI: $($awsCommand.Source)"
+Write-Host "AWS CLI: $awsExecutable"
 
 try {
-  $identityJson = aws sts get-caller-identity --output json 2>$null
+  $identityJson = & $awsExecutable sts get-caller-identity --output json 2>$null
   $identity = $identityJson | ConvertFrom-Json
   Write-Host "Account: $($identity.Account)"
   Write-Host "Principal: $($identity.Arn)"
@@ -36,7 +37,7 @@ try {
 }
 
 try {
-  $stackJson = aws cloudformation describe-stacks --region $Region --stack-name $StackName --output json 2>$null
+  $stackJson = & $awsExecutable cloudformation describe-stacks --region $Region --stack-name $StackName --output json 2>$null
   $stack = ($stackJson | ConvertFrom-Json).Stacks[0]
   Write-Host "CloudFormation stack: $($stack.StackStatus)"
 } catch {
@@ -46,7 +47,7 @@ try {
 
 if ($BucketName) {
   try {
-    aws s3api head-bucket --bucket $BucketName 2>$null | Out-Null
+    & $awsExecutable s3api head-bucket --bucket $BucketName 2>$null | Out-Null
     Write-Host "S3 reports bucket: reachable ($BucketName)"
   } catch {
     Write-Host "S3 reports bucket: not reachable or not created ($BucketName)"
