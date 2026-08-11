@@ -97,6 +97,12 @@ AWS readiness command:
 .\scripts\aws_verify_ready.ps1 -Region eu-west-1
 ```
 
+## Submission Separation
+
+- DataHub judging reference is frozen at Git tag `datahub-submission-2026-08-10`.
+- CockroachDB x AWS work continues on branch `next`.
+- Do not edit the DataHub Devpost submission after closure.
+- Keep the CockroachDB x AWS video field empty until the final recording is ready, if Devpost allows it.
 ## Do Not Submit
 
 Do not upload or paste:

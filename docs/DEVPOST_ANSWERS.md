@@ -22,7 +22,7 @@ https://olinckbotai.web.app/api/agent-context?symbol=BTCUSDT
 
 Video:
 
-Pending YouTube link.
+Pending. Do not add the old OlinckBotAI video to the CockroachDB x AWS submission unless a final hackathon-specific video is unavailable near the deadline.
 
 ## One-Liner
 
@@ -106,13 +106,13 @@ The AWS path is intentionally simple:
 - ECS Fargate runs the FastAPI backend container.
 - S3 stores JSON agent-context reports.
 
-The implementation is live in code through `AWSReportStore`. When AWS credentials or account activation are unavailable, the exact report payload is written locally as a demo fallback.
+The implementation is live in code through `AWSReportStore`. AWS S3 has been deployed through CloudFormation and smoke-tested with a real agent-context report artifact. When AWS credentials are unavailable, the exact report payload is written locally as a demo fallback.
 
 ## Challenges
 
 The main challenge was building a trading-agent memory that remains useful without making the bot reckless. The agent can retrieve past decisions and improve its context, but hard risk controls and paper-only mode remain outside the agent's control.
 
-AWS account activation was initially delayed by phone verification. The repository now includes a readiness check, an encrypted S3 CloudFormation template, and a local AWS report fallback for demos before CLI authentication is configured.
+AWS account activation is complete. The repository includes a readiness check, an encrypted S3 CloudFormation template, and a live S3 smoke test path, while still preserving local fallback mode for reviewers who run without AWS credentials.
 
 ## Accomplishments
 
@@ -129,8 +129,8 @@ Agentic trading systems need memory, but memory alone is not enough. The agent a
 
 ## What's Next
 
-- Authenticate AWS CLI and deploy the S3/ECS path.
-- Connect a production DataHub instance.
+- Add the final hackathon-specific demo video link before submission if available.
+- Keep the DataHub submission frozen at Git tag `datahub-submission-2026-08-10` while continuing CockroachDB x AWS work on `next`.
 - Add outcome updates after each paper trade closes.
 - Expand semantic memory dimensions if using a production embedding provider.
 - Add judge-facing hosted demo after AWS activation.

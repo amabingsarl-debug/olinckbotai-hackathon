@@ -93,7 +93,7 @@ The FastAPI backend is prepared to run as a containerized service. `infra/aws/ec
 
 `AWSReportStore` writes each agent-context report to S3 when `AWS_S3_REPORTS_BUCKET` is configured. In demo mode it writes a local JSON artifact.
 
-`infra/aws/s3-agent-reports.cloudformation.yml` creates the encrypted private report bucket and a least-privilege writer policy. `scripts/aws_prepare_s3_reports.ps1` deploys it with the AWS CLI.
+`infra/aws/s3-agent-reports.cloudformation.yml` creates the encrypted private report bucket and a least-privilege writer policy. `scripts/aws_prepare_s3_reports.ps1` deploys it with the AWS CLI. The S3 path has been deployed and smoke-tested with a real agent-context report artifact.
 
 ## Security and Privacy
 
@@ -161,6 +161,8 @@ DATAHUB_TOKEN=<stored-only-in-env-or-secret-manager>
 - Tests cover memory writing, retrieval, semantic search, DataHub demo context, and memory-enriched decisions.
 
 ## Video Demo Under 3 Minutes
+
+Video link is intentionally pending until the final hackathon-specific recording is ready. Do not reuse the older general OlinckBotAI video unless the deadline requires a placeholder.
 
 1. Show OlinckBotAI dashboard and the `Agentic Memory` panel.
 2. Trigger or refresh `BTCUSDT` agent context and show the first analysis being saved.
