@@ -22,7 +22,7 @@ Implemented:
 
 ### CockroachDB x AWS: Build with Agentic Memory
 
-Status: ready for demo submission; AWS account activation appears available, local AWS CLI setup remains pending.
+Status: ready for demo submission; AWS CLI is authenticated and the encrypted S3 report bucket is deployed.
 
 Implemented:
 
@@ -78,7 +78,7 @@ Results:
 
 ## AWS Readiness
 
-AWS account activation appears available as of 2026-08-11. The local machine still needs AWS CLI v2 installation/authentication before CloudFormation can be deployed from scripts. The project remains demonstrable because:
+AWS account activation is available as of 2026-08-11. AWS CLI v2 is authenticated locally, and CloudFormation created the encrypted private S3 report bucket. The project remains demonstrable because:
 
 - AWS code integration exists in `backend/app/services/aws_reports.py`.
 - S3 infrastructure exists in `infra/aws/s3-agent-reports.cloudformation.yml`.
@@ -88,7 +88,7 @@ AWS account activation appears available as of 2026-08-11. The local machine sti
 Suggested submission wording:
 
 ```text
-AWS deployment is prepared with ECS Fargate and S3 report artifacts. Account activation is available; the repository includes an AWS readiness check plus CloudFormation for the encrypted S3 report store. Until AWS CLI is authenticated on the demo machine, the same report payload is written through the local fallback.
+AWS deployment is prepared with ECS Fargate and S3 report artifacts. Account activation is available; the repository includes an AWS readiness check plus CloudFormation for the encrypted S3 report store. Live S3 writing has been smoke-tested with an agent-context report artifact.
 ```
 
 AWS readiness command:

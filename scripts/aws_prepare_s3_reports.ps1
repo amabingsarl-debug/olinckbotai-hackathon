@@ -16,11 +16,17 @@ if (-not $BucketName) {
   $BucketName = "olinckbotai-agent-reports-$suffix"
 }
 
+$awsCommand = Get-Command aws -ErrorAction SilentlyContinue
+$awsExecutable = if ($awsCommand) { $awsCommand.Source } else { "C:\Program Files\Amazon\AWSCLIV2\aws.exe" }
+if (-not (Test-Path -LiteralPath $awsExecutable)) {
+  throw "AWS CLI was not found. Install AWS CLI v2 first."
+}
+
 Write-Host "Preparing AWS S3 agent report storage..."
 Write-Host "Region: $Region"
 Write-Host "Bucket: $BucketName"
 
-aws cloudformation deploy `
+& $awsExecutable cloudformation deploy `
   --region $Region `
   --stack-name $StackName `
   --template-file "infra/aws/s3-agent-reports.cloudformation.yml" `
