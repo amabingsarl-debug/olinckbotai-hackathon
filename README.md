@@ -178,6 +178,12 @@ AWS production:
 - `AWS_ECS_CLUSTER`
 - `AWS_ECS_SERVICE`
 
+Check AWS readiness without exposing secrets:
+
+```powershell
+.\scripts\aws_verify_ready.ps1 -Region eu-west-1
+```
+
 Prepare the S3 report store with:
 
 ```powershell

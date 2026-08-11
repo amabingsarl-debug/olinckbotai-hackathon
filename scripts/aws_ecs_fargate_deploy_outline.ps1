@@ -5,7 +5,7 @@ param(
   [string]$EcsService = $env:AWS_ECS_SERVICE
 )
 
-if (-not $AwsRegion) { $AwsRegion = "us-east-1" }
+if (-not $AwsRegion) { $AwsRegion = "eu-west-1" }
 if (-not $EcrRepository -or -not $EcsCluster -or -not $EcsService) {
   Write-Host "Set AWS_ECR_REPOSITORY, AWS_ECS_CLUSTER and AWS_ECS_SERVICE to deploy."
   Write-Host "This outline intentionally does not store credentials or secrets."

@@ -112,7 +112,7 @@ The implementation is live in code through `AWSReportStore`. When AWS credential
 
 The main challenge was building a trading-agent memory that remains useful without making the bot reckless. The agent can retrieve past decisions and improve its context, but hard risk controls and paper-only mode remain outside the agent's control.
 
-AWS account activation was also delayed by phone verification, so the project includes a local AWS report fallback plus deployment templates ready for activation.
+AWS account activation was initially delayed by phone verification. The repository now includes a readiness check, an encrypted S3 CloudFormation template, and a local AWS report fallback for demos before CLI authentication is configured.
 
 ## Accomplishments
 
@@ -129,7 +129,7 @@ Agentic trading systems need memory, but memory alone is not enough. The agent a
 
 ## What's Next
 
-- Activate AWS account and deploy the ECS/S3 path.
+- Authenticate AWS CLI and deploy the S3/ECS path.
 - Connect a production DataHub instance.
 - Add outcome updates after each paper trade closes.
 - Expand semantic memory dimensions if using a production embedding provider.
